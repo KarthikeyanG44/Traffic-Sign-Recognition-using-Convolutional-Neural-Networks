@@ -10,7 +10,7 @@ import torch.nn.functional as F
 import torchvision.datasets as datasets
 import numpy as np
 from data import initialize_data # data.py in the same folder
-from model import Net
+from TrafficNet import Model
 import torchvision
 
 
@@ -24,16 +24,16 @@ parser.add_argument('--outfile', type=str, default='pred.csv', metavar='D',
 
 args = parser.parse_args()
 
-state_dict = torch.load('E:\Gatech Fall 2019\DIP\Final Project\gtsrb-pytorch\model_80.pth')
-model = Net()
+state_dict = torch.load('E:\Gatech Fall 2019\DIP\Final Project\gtsrb-german-traffic-sign\Models\model_50.pth')
+model = Model()
 model.load_state_dict(state_dict)
 model.eval()
 
 from data import data_transforms,data_jitter_hue,data_jitter_brightness,data_jitter_saturation,data_jitter_contrast,data_rotate,data_hvflip,data_shear,data_translate,data_center,data_grayscale
 
 
-test_folder = 'E:\Gatech Fall 2019\DIP\Final Project\Data\Test\Final_Test\Images'
-pred_folder = r'E:\Gatech Fall 2019\DIP\Final Project\preds.csv'
+test_folder = r'E:\Gatech Fall 2019\DIP\Final Project\gtsrb-german-traffic-sign\Test'
+pred_folder = r'E:\Gatech Fall 2019\DIP\Final Project\Results\preds.csv'
 
 def pil_loader(path):
     # open path as file to avoid ResourceWarning (https://github.com/python-pillow/Pillow/issues/835)
@@ -48,7 +48,7 @@ output_file.write("Filename,ClassId\n")
 
 
 for f in tqdm(os.listdir(test_folder)):
-    if 'ppm' in f:
+    if 'png' in f:
         output = torch.zeros([1, 43], dtype=torch.float32)
         with torch.no_grad():
             for i in range(0,len(transforms)):
@@ -56,9 +56,10 @@ for f in tqdm(os.listdir(test_folder)):
                 data = data.view(1, data.size(0), data.size(1), data.size(2))
                 data = Variable(data)
                 output = output.add(model(data))
-                pred = output.data.max(1, keepdim=True)[1]
-                file_id = f[0:5]
-                output_file.write("%s,%d\n" % (file_id, pred))
+
+            pred = output.data.max(1, keepdim=True)[1]
+            file_id = f[0:5]
+            output_file.write("%s,%d\n" % (file_id, pred))
 
 
 
