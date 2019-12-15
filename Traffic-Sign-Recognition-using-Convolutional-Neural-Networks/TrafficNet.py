@@ -109,11 +109,6 @@ class Model(nn.Module):
         x = F.grid_sample(x, grid)
         return x
 
-
-
-
-
-
     def forward(self, x):
         # transform the input
         x = self.stn1(x)
@@ -136,4 +131,4 @@ class Model(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.dropout(x, training=self.training)
         x = self.fc2(x)
-        return F.log_softmax(x, dim=1)
+        return F.softmax(x, dim=1)
